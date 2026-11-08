@@ -1,12 +1,14 @@
-# Vagas Vale do Ribeira
+# MeuBonjee
 
-Quero desenvolver uma plataforma parecida com o https://www.inhire.com.br/  em anexo olha a simplicidade de como é uma pessoa enviar o currículo, quanto menos input melhor, quero que faça primeiro uma landing page, mostrando esse produto, literalmente focado dentro da Região do Vale do Ribeira, sabendo como é dificil encontrar e centralizar vagas na região
+**MeuBonjee** — "bonjee" é uma expressão iguapense de alegria. É uma plataforma **open source** para centralizar as vagas de emprego do Vale do Ribeira (Registro, Iguape, Cajati, Pariquera-Açu e toda a região), com candidatura ultra-simples: nome, WhatsApp e currículo. Quanto menos campo, mais gente se candidata.
 
-This project was built with [Lovable](https://lovable.dev).
+## Licença
+
+Código aberto sob a [licença MIT](LICENSE). Contribuições são bem-vindas!
 
 ## Build with Lovable
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/44c5a5dc-88c1-4866-959a-ec124198a833).
+This project was built with [Lovable](https://lovable.dev). Continue developing in the [Lovable editor](https://lovable.dev/projects/44c5a5dc-88c1-4866-959a-ec124198a833).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
 - **Stay in sync**: every change made in Lovable is committed straight to this repository.
@@ -14,7 +16,7 @@ Continue developing this project in the [Lovable editor](https://lovable.dev/pro
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ```sh
 git clone <this-repository-url>

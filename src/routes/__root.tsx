@@ -81,14 +81,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Vagas do Vale" },
-      { name: "description", content: "Vagas do Vale do Ribeira" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Vagas do Vale" },
-      { property: "og:description", content: "Vagas do Vale do Ribeira" },
+      { title: "MeuBonjee" },
+      { name: "description", content: "Vagas do Vale do Ribeira centralizadas — projeto open source" },
+      { property: "og:title", content: "MeuBonjee" },
+      { property: "og:description", content: "Vagas do Vale do Ribeira centralizadas — projeto open source" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {

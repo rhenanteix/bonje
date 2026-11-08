@@ -7,9 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Vagas do Vale — Empregos no Vale do Ribeira em um só lugar" },
-      { name: "description", content: "Todas as vagas do Vale do Ribeira centralizadas. Candidate-se em 30 segundos: nome, WhatsApp e currículo." },
-      { property: "og:title", content: "Vagas do Vale — Empregos no Vale do Ribeira" },
+      { title: "MeuBonjee — Empregos no Vale do Ribeira em um só lugar" },
+      { name: "description", content: "Todas as vagas do Vale do Ribeira centralizadas. Candidate-se em 30 segundos: nome, WhatsApp e currículo. Projeto open source." },
+      { property: "og:title", content: "MeuBonjee — Empregos no Vale do Ribeira" },
       { property: "og:description", content: "Candidate-se em 30 segundos às vagas de Registro, Iguape, Cajati, Pariquera-Açu e toda a região." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -24,7 +24,7 @@ function Index() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background font-body text-foreground">
       <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <a href="/" className="font-display text-2xl font-semibold tracking-tight">Vagas<span className="text-primary">doVale</span></a>
+        <a href="/" className="font-display text-2xl font-semibold tracking-tight">Meu<span className="text-primary">Bonjee</span></a>
         <nav className="hidden gap-8 text-sm text-muted-foreground md:flex">
           <a href="#vagas" className="hover:text-foreground">Vagas</a>
           <a href="#como" className="hover:text-foreground">Como funciona</a>
@@ -37,7 +37,11 @@ function Index() {
         <div className="pointer-events-none absolute right-0 top-40 h-[28rem] w-[28rem] rounded-full bg-accent blur-3xl animate-blob [animation-delay:-6s]" />
         <div className="relative mx-auto grid max-w-6xl gap-12 px-6 pb-16 pt-10 md:grid-cols-[1.2fr_1fr] md:items-center">
           <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-            <h1 className="font-display text-5xl font-semibold leading-[1.02] tracking-tight md:text-7xl">
+            <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              Bonjee! — expressão iguapense de alegria · Projeto open source
+            </p>
+            <h1 className="mt-5 font-display text-5xl font-semibold leading-[1.02] tracking-tight md:text-7xl">
               Todas as vagas do Vale, <em className="text-gradient">num lugar só.</em>
             </h1>
             <p className="mt-6 max-w-lg text-lg text-muted-foreground">
@@ -86,7 +90,7 @@ function Index() {
       <NewsletterSection />
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        © 2026 Vagas do Vale · Empregos no Vale do Ribeira
+        © 2026 MeuBonjee · Empregos no Vale do Ribeira · Código aberto, feito pela comunidade
       </footer>
     </div>
   );
