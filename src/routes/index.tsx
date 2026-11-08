@@ -37,10 +37,6 @@ function Index() {
         <div className="pointer-events-none absolute right-0 top-40 h-[28rem] w-[28rem] rounded-full bg-accent blur-3xl animate-blob [animation-delay:-6s]" />
         <div className="relative mx-auto grid max-w-6xl gap-12 px-6 pb-16 pt-10 md:grid-cols-[1.2fr_1fr] md:items-center">
           <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-            <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
-              Bonjee! — expressão iguapense de alegria · Projeto open source
-            </p>
             <h1 className="mt-5 font-display text-5xl font-semibold leading-[1.02] tracking-tight md:text-7xl">
               Todas as vagas do Vale, <em className="text-gradient">num lugar só.</em>
             </h1>
@@ -59,11 +55,6 @@ function Index() {
         </div>
 
         <div className="relative border-y border-border bg-foreground py-4 text-background">
-          <div className="flex w-max animate-marquee gap-10 whitespace-nowrap">
-            {[...cidades, ...cidades].map((c, i) => (
-              <span key={i} className="flex items-center gap-2 font-display text-xl"><MapPin className="h-4 w-4 text-primary" />{c}</span>
-            ))}
-          </div>
         </div>
       </section>
 
