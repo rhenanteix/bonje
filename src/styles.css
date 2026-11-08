@@ -156,3 +156,16 @@
     color: var(--color-foreground);
   }
 }
+
+@keyframes blob { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(40px,-30px) scale(1.1); } 66% { transform: translate(-30px,20px) scale(0.95); } }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes typing { from { width: 0; } to { width: 11ch; } }
+@utility animate-blob { animation: blob 14s ease-in-out infinite; }
+@utility animate-float { animation: float 6s ease-in-out infinite; }
+@utility animate-marquee { animation: marquee 35s linear infinite; }
+@utility text-gradient {
+  background: linear-gradient(120deg, var(--primary), oklch(0.55 0.12 150));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.typing { display: inline-block; overflow: hidden; white-space: nowrap; border-right: 2px solid var(--primary); animation: typing 2.5s steps(11) infinite alternate; }
