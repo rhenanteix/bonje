@@ -106,9 +106,6 @@ function HeroDemo() {
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground"><Check className="h-4 w-4" /></div>
         <div className="text-sm"><p className="font-semibold">Currículo enviado!</p><p className="text-xs text-muted-foreground">Sem cadastro, sem senha</p></div>
       </div>
-      <div className="absolute -right-4 -top-5 rotate-6 rounded-2xl bg-foreground px-4 py-2 text-sm font-medium text-background shadow-lg animate-float [animation-delay:-4s]">
-        <Sparkles className="mr-1 inline h-4 w-4 text-primary" />Só 3 campos
-      </div>
     </div>
   );
 }
