@@ -1,0 +1,1 @@
+ALTER TABLE public.jobs ADD COLUMN IF NOT EXISTS application_url text; ALTER TABLE public.jobs ADD CONSTRAINT jobs_application_url_https CHECK (application_url IS NULL OR application_url ~ '^https://[^[:space:]]+$');

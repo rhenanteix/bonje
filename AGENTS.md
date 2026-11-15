@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Public job lists use a read-only server function primed by the route Query loader, so the first render contains current database rows without privileged access.
+- Store each vacancy's original application URL in the jobs table and validate HTTPS links before rendering external application controls, so candidates reach the real posting safely.
+- Keep job search, city, and contract filters in route search parameters, so filtered views survive refresh and sharing.
+- Preserve uploaded brand imagery through CDN asset pointers; only the small favicon is stored as a raster in public.

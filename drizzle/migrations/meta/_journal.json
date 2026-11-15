@@ -8,6 +8,13 @@
       "when": 1794114296544,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794784522161,
+      "tag": "0001_add_job_application_link",
+      "breakpoints": true
     }
   ]
 }

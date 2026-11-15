@@ -1,214 +1,91 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { MapPin, Upload, Check, Building2, Zap, ArrowRight, MessageCircle, Briefcase, Mail, Sparkles, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { createFileRoute, useRouter } from '@tanstack/react-router';
+import { useState } from 'react';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
+import { z } from 'zod';
+import { ArrowUpRight, ArrowRight, MapPin, Search, BriefcaseBusiness, Check, Loader2, MoveUpRight, Code2, Bell, Building2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import logo from '@/assets/meubonjee-logo.png.asset.json';
+import { listJobs } from '@/lib/jobs.functions';
+import { filterJobs, safeApplicationUrl } from '@/lib/jobs';
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "MeuBonjee — Empregos no Vale do Ribeira em um só lugar" },
-      { name: "description", content: "Todas as vagas do Vale do Ribeira centralizadas. Candidate-se em 30 segundos: nome, WhatsApp e currículo. Projeto open source." },
-      { property: "og:title", content: "MeuBonjee — Empregos no Vale do Ribeira" },
-      { property: "og:description", content: "Candidate-se em 30 segundos às vagas de Registro, Iguape, Cajati, Pariquera-Açu e toda a região." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+const jobsOptions = queryOptions({ queryKey: ['jobs'], queryFn: () => listJobs(), staleTime: 60_000 });
+const filtersSchema = z.object({ q: z.string().optional(), city: z.string().optional(), type: z.string().optional() });
+export const Route = createFileRoute('/')({
+  validateSearch: (search: Record<string, unknown>) => filtersSchema.parse(search),
+  loader: ({ context }) => context.queryClient.ensureQueryData(jobsOptions),
+  head: () => ({ meta: [
+    { title: 'MeuBonjee — Vagas de emprego no Vale do Ribeira' },
+    { name: 'description', content: 'Encontre vagas no Vale do Ribeira e candidate-se diretamente no site do anúncio. Em breve, empresas poderão publicar no MeuBonjee.' },
+    { property: 'og:title', content: 'MeuBonjee — Seu próximo trabalho pode estar aqui no Vale' },
+    { property: 'og:description', content: 'Oportunidades da região em um só lugar. Um projeto aberto, feito por gente daqui.' },
+    { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' },
+  ] }),
   component: Index,
+  pendingComponent: () => <div className="flex min-h-screen items-center justify-center bg-background"><Loader2 className="size-6 animate-spin text-foreground" aria-label="Carregando vagas" /></div>,
+  errorComponent: JobsError,
+  notFoundComponent: () => <p className="p-8">Página não encontrada.</p>,
 });
-
-const cidades = ["Registro", "Iguape", "Cajati", "Jacupiranga", "Pariquera-Açu", "Eldorado", "Juquiá", "Miracatu", "Sete Barras", "Cananéia", "Ilha Comprida", "Barra do Turvo", "Iporanga", "Itariri", "Pedro de Toledo"];
-
+const cidades = ['Registro', 'Iguape', 'Cajati', 'Jacupiranga', 'Pariquera-Açu', 'Eldorado', 'Juquiá', 'Miracatu', 'Sete Barras', 'Cananéia', 'Ilha Comprida', 'Barra do Turvo', 'Iporanga', 'Itariri', 'Pedro de Toledo'];
+function JobsError() {
+  const router = useRouter();
+  return <main className="flex min-h-screen flex-col items-center justify-center gap-5 bg-background px-6"><h1 className="font-display text-3xl">MeuBonjee</h1><p role="alert">Não conseguimos carregar as vagas agora.</p><Button onClick={() => router.invalidate()}>Tentar novamente</Button></main>;
+}
 function Index() {
-  return (
-    <div className="min-h-screen overflow-x-hidden bg-background font-body text-foreground">
-      <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <a href="/" className="font-display text-2xl font-semibold tracking-tight">Meu<span className="text-primary">Bonjee</span></a>
-        <nav className="hidden gap-8 text-sm text-muted-foreground md:flex">
-          <a href="#vagas" className="hover:text-foreground">Vagas</a>
-          <a href="#como" className="hover:text-foreground">Como funciona</a>
-          <a href="#empresas" className="hover:text-foreground">Para empresas</a>
-        </nav>
-      </header>
-
-      <section className="relative">
-        <div className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-primary/25 blur-3xl animate-blob" />
-        <div className="pointer-events-none absolute right-0 top-40 h-[28rem] w-[28rem] rounded-full bg-accent blur-3xl animate-blob [animation-delay:-6s]" />
-        <div className="relative mx-auto grid max-w-6xl gap-12 px-6 pb-16 pt-10 md:grid-cols-[1.2fr_1fr] md:items-center">
-          <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-            <h1 className="mt-5 font-display text-5xl font-semibold leading-[1.02] tracking-tight md:text-7xl">
-              Todas as vagas do Vale, <em className="text-gradient">num lugar só.</em>
-            </h1>
-            <p className="mt-6 max-w-lg text-lg text-muted-foreground">
-              Chega de caçar vaga em grupo de WhatsApp, mural de padaria e post perdido no Facebook.
-              Aqui você vê tudo que está aberto na região e se candidata em 30 segundos.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#vagas" className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-medium text-primary-foreground shadow-[var(--shadow-soft)] transition hover:-translate-y-0.5">
-                Ver vagas <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-              </a>
-              <a href="#empresas" className="rounded-full border border-border bg-background/60 px-6 py-3 font-medium backdrop-blur transition hover:-translate-y-0.5">Sou empresa</a>
-            </div>
-          </div>
-          <HeroDemo />
-        </div>
-
-        <div className="relative border-y border-border bg-foreground py-4 text-background">
+  const { data: jobs } = useSuspenseQuery(jobsOptions);
+  const filters = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const visible = filterJobs(jobs, filters);
+  return <div className="min-h-screen bg-background font-body text-foreground">
+    <header className="border-b border-border">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+        <a href="/" className="flex items-center gap-2" aria-label="MeuBonjee início"><img src={logo.url} alt="" className="size-12 object-contain" /><span className="font-display text-2xl font-bold">MeuBonjee<span className="text-brand-strong">.</span></span></a>
+        <nav className="flex items-center gap-6"><a href="#vagas" className="hidden text-sm font-semibold sm:block">Encontrar vagas</a><Button asChild variant="outline" className="h-10 rounded-full border-foreground px-4"><a href="#empresas">Sou empresa <ArrowUpRight /></a></Button></nav>
+      </div>
+    </header>
+    <main>
+      <section className="relative overflow-hidden">
+        <div className="hero-mascot pointer-events-none absolute bottom-0 right-0 hidden md:block"><img src={logo.url} alt="" className="h-full w-full object-contain" /></div>
+        <div className="relative mx-auto max-w-6xl px-5 pb-14 pt-12 sm:px-8 sm:pt-16">
+          <p className="mb-6 inline-flex items-center gap-2 text-xs font-bold uppercase"><span className="size-2 rounded-full bg-brand-strong" /> De gente daqui. Para gente daqui.</p>
+          <h1 className="max-w-2xl font-display text-4xl font-semibold leading-[1.08] sm:text-6xl">MeuBonjee.<br />Seu próximo trabalho<br className="hidden sm:block" /> pode estar <span className="hero-highlight">aqui no Vale.</span></h1>
+          <p className="mt-6 max-w-md text-base leading-7 text-muted-foreground">Menos vagas perdidas em grupos. Mais oportunidades perto de você. O Vale do Ribeira, agora num lugar só.</p>
+          <div className="mt-8 flex flex-wrap gap-3"><Button asChild className="h-12 rounded-full bg-foreground px-6 text-background hover:bg-foreground/90"><a href="#vagas">Bora encontrar uma vaga <ArrowRight /></a></Button><span className="flex items-center gap-2 px-2 text-xs text-muted-foreground"><MapPin className="size-4" /> Vale do Ribeira, SP</span></div>
+          <img src={logo.url} alt="Logo MeuBonjee: personagem sorridente com chapéu de palha e sinal de paz" className="mx-auto mt-5 h-32 object-contain md:hidden" />
         </div>
       </section>
-
-      <JobsSection />
-
-      <section id="como" className="mx-auto max-w-6xl px-6 py-24">
-        <h2 className="max-w-xl font-display text-4xl font-semibold">Quanto menos campo, mais gente se candidata.</h2>
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {([
-            [Zap, "Escolha a vaga", "Filtre pela sua cidade. Registro, Cajati, Iguape — tudo separado."],
-            [Upload, "Envie o currículo", "Nome, WhatsApp e o arquivo. Pode ser até foto do currículo no celular."],
-            [MessageCircle, "Receba no WhatsApp", "A empresa fala direto com você. Sem e-mail perdido no spam."],
-          ] as const).map(([Icon, t, d], i) => (
-            <div key={t} className="group relative overflow-hidden rounded-3xl bg-secondary p-8 transition duration-300 hover:-translate-y-2 hover:shadow-[var(--shadow-soft)]">
-              <span className="absolute -right-2 -top-6 font-display text-9xl font-semibold text-primary/10 transition group-hover:text-primary/20">{i + 1}</span>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground transition group-hover:rotate-6 group-hover:scale-110"><Icon className="h-6 w-6" /></div>
-              <h3 className="mt-6 text-lg font-semibold">{t}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{d}</p>
-            </div>
-          ))}
+      <div className="border-y border-border bg-primary"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-5 text-sm sm:px-8"><span className="flex items-center gap-2 font-semibold"><BriefcaseBusiness className="size-4" /> Oportunidades reais, perto de casa</span><span className="flex items-center gap-2"><ArrowUpRight className="size-4" /> Candidatura no site da vaga</span><span className="flex items-center gap-2"><Code2 className="size-4" /> Aberto e feito pela comunidade</span></div></div>
+      <section id="vagas" className="scroll-mt-6 py-16 sm:py-20">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="mb-3 text-xs font-bold uppercase text-muted-foreground">Um novo começo</p><h2 className="font-display text-3xl font-semibold sm:text-4xl">Vagas abertas no Vale<span className="text-brand-strong">.</span></h2></div><span className="text-sm text-muted-foreground">{jobs.length} oportunidades encontradas</span></div>
+          <form className="mt-8 grid gap-3 border-y border-border py-5 sm:grid-cols-[1fr_200px_170px]" onSubmit={e => { e.preventDefault(); const f = new FormData(e.currentTarget); void navigate({ search: { q: String(f.get('q') || '') || undefined, city: filters.city, type: filters.type }, hash: 'vagas', resetScroll: false }); }}>
+            <div className="flex h-12 items-center gap-2 rounded-lg border border-input bg-card pl-4"><Search className="size-4 shrink-0 text-muted-foreground" /><input key={filters.q} name="q" defaultValue={filters.q} placeholder="Cargo ou empresa" aria-label="Cargo ou empresa" className="min-w-0 flex-1 bg-transparent text-sm outline-none" /><Button type="submit" variant="ghost" size="icon" aria-label="Buscar vagas"><ArrowRight /></Button></div>
+            <select aria-label="Cidade" className="h-12 rounded-lg border border-input bg-card px-4 text-sm" value={filters.city ?? ''} onChange={e => void navigate({ search: { ...filters, city: e.target.value || undefined }, hash: 'vagas', resetScroll: false })}><option value="">Todas as cidades</option>{cidades.map(c => <option key={c}>{c}</option>)}</select>
+            <select aria-label="Tipo de contrato" className="h-12 rounded-lg border border-input bg-card px-4 text-sm" value={filters.type ?? ''} onChange={e => void navigate({ search: { ...filters, type: e.target.value || undefined }, hash: 'vagas', resetScroll: false })}><option value="">Todos os contratos</option>{Array.from(new Set(jobs.map(j => j.job_type))).map(t => <option key={t}>{t}</option>)}</select>
+          </form>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">{visible.map(job => {
+            const url = safeApplicationUrl(job.application_url);
+            return <article key={job.id} className="job-card flex min-h-56 flex-col rounded-lg border border-border bg-card p-6"><div className="flex items-start justify-between gap-4"><span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-secondary"><Building2 className="size-5" /></span><span className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold">{job.job_type}</span></div><h3 className="mt-5 font-display text-xl font-semibold">{job.title}</h3><p className="mt-1 text-sm text-muted-foreground">{job.company}</p><div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-6"><span className="flex items-center gap-1.5 text-xs text-muted-foreground"><MapPin className="size-3.5" />{job.city}, SP</span>{url ? <Button asChild variant="ghost" className="h-8 px-0 font-semibold hover:bg-transparent hover:text-brand-strong"><a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Ver vaga: ${job.title}`}>Ver vaga <ArrowUpRight /></a></Button> : <span className="text-xs text-muted-foreground">Link em breve</span>}</div></article>;
+          })}</div>
+          {visible.length === 0 && <div className="py-14 text-center"><BriefcaseBusiness className="mx-auto size-8 text-muted-foreground" /><h3 className="mt-4 font-display text-2xl">{jobs.length ? 'Nenhuma vaga com esses filtros' : 'As primeiras oportunidades estão chegando'}</h3>{jobs.length > 0 && <Button variant="outline" className="mt-5" onClick={() => void navigate({ search: {}, hash: 'vagas', resetScroll: false })}>Limpar filtros</Button>}</div>}
+          <p className="mt-6 flex items-start gap-2 text-xs leading-5 text-muted-foreground"><ArrowUpRight className="mt-0.5 size-3.5 shrink-0" />Anúncios de sites externos. Requisitos, prazos e disponibilidade são confirmados na página da vaga.</p>
         </div>
       </section>
-
       <NewsletterSection />
-
-      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        © 2026 MeuBonjee · Empregos no Vale do Ribeira · Código aberto, feito pela comunidade
-      </footer>
-    </div>
-  );
+    </main>
+    <footer className="border-t border-border"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-5 px-5 py-8 sm:px-8"><span className="font-display text-xl font-bold">MeuBonjee.</span><p className="text-xs text-muted-foreground">© 2026 · Feito no Vale do Ribeira, para o Vale do Ribeira.</p><span className="flex items-center gap-2 text-xs"><Code2 className="size-4" /> Projeto open source</span></div></footer>
+  </div>;
 }
-
-function HeroDemo() {
-  return (
-    <div className="relative animate-in fade-in zoom-in-95 duration-700 [animation-delay:200ms] [animation-fill-mode:both]">
-      <div className="animate-float rounded-3xl border border-border bg-card p-7 shadow-[var(--shadow-soft)]">
-        <div className="flex items-center justify-between">
-          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Candidatura</p>
-          <span className="rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold text-accent-foreground">30 segundos</span>
-        </div>
-        <div className="mt-5 space-y-3">
-          <div className="rounded-xl border border-input bg-background px-4 py-3 text-sm"><span className="typing">Maria Souza</span></div>
-          <div className="rounded-xl border border-input bg-background px-4 py-3 text-sm text-muted-foreground">(13) 9 9876-5432</div>
-          <div className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-primary bg-secondary px-4 py-4 text-sm font-medium text-primary"><Upload className="h-4 w-4" /> curriculo-maria.pdf</div>
-          <div className="rounded-xl bg-primary py-3 text-center font-semibold text-primary-foreground">Enviar candidatura</div>
-        </div>
-      </div>
-      <div className="absolute -bottom-6 -left-6 flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-[var(--shadow-soft)] animate-float [animation-delay:-2s]">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground"><Check className="h-4 w-4" /></div>
-        <div className="text-sm"><p className="font-semibold">Currículo enviado!</p><p className="text-xs text-muted-foreground">Sem cadastro, sem senha</p></div>
-      </div>
-    </div>
-  );
-}
-
-function JobsSection() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["jobs"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("jobs").select("*").eq("is_active", true).order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  return (
-    <section id="vagas" className="border-b border-border bg-card py-20">
-      <div className="mx-auto max-w-6xl px-6">
-        <h2 className="font-display text-4xl font-semibold">Abertas agora na região</h2>
-        {isLoading ? (
-          <div className="mt-10 flex justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
-        ) : data && data.length > 0 ? (
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            {data.map((v) => (
-              <div key={v.id} className="flex items-center justify-between rounded-2xl border border-border bg-background p-5 transition hover:-translate-y-1 hover:border-primary">
-                <div>
-                  <p className="font-semibold">{v.title}</p>
-                  <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><Building2 className="h-3.5 w-3.5" />{v.company} · <MapPin className="h-3.5 w-3.5" />{v.city}</p>
-                </div>
-                <span className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">{v.job_type}</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-8 flex flex-col items-center rounded-3xl border border-dashed border-border bg-background px-6 py-14 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-primary animate-float"><Briefcase className="h-6 w-6" /></div>
-            <p className="mt-5 font-display text-2xl font-semibold">As primeiras vagas estão chegando</p>
-            <p className="mt-2 max-w-md text-sm text-muted-foreground">Estamos conversando com empresas do Vale. Tem uma empresa? Entre na lista e seja uma das primeiras a anunciar.</p>
-            <a href="#empresas" className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground">Sou empresa <ArrowRight className="h-4 w-4" /></a>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
 function NewsletterSection() {
-  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [msg, setMsg] = useState("");
-
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
-    const company_name = String(f.get("company") ?? "").trim();
-    const email = String(f.get("email") ?? "").trim().toLowerCase();
-    const city = String(f.get("city") ?? "").trim() || null;
-    setStatus("loading");
-    const { error } = await supabase.from("company_leads").insert({ company_name, email, city });
-    if (error && error.code !== "23505") {
-      setStatus("error");
-      setMsg("Não conseguimos salvar. Confira o e-mail e tente de novo.");
-      return;
-    }
-    setStatus("done");
+    setStatus('loading');
+    try {
+      const { error } = await supabase.from('company_leads').insert({ company_name: String(f.get('company') ?? '').trim(), email: String(f.get('email') ?? '').trim().toLowerCase(), city: String(f.get('city') ?? '').trim() || null });
+      setStatus(error && error.code !== '23505' ? 'error' : 'done');
+    } catch { setStatus('error'); }
   }
-
-  return (
-    <section id="empresas" className="relative overflow-hidden bg-foreground py-24 text-background">
-      <div className="pointer-events-none absolute -right-20 -top-20 h-96 w-96 rounded-full bg-primary/40 blur-3xl animate-blob" />
-      <div className="relative mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-2 md:items-center">
-        <div>
-          <p className="text-sm uppercase tracking-widest opacity-60">Newsletter para empresas</p>
-          <h2 className="mt-4 font-display text-4xl font-semibold md:text-5xl">Contrate gente daqui, sem depender de grupo de WhatsApp.</h2>
-          <ul className="mt-8 space-y-3 opacity-90">
-            {["Seja avisado quando lançarmos o painel de vagas", "Anuncie grátis no lançamento", "Novidades sobre contratação no Vale do Ribeira"].map((i) => (
-              <li key={i} className="flex items-start gap-3"><Check className="mt-0.5 h-5 w-5 text-primary" />{i}</li>
-            ))}
-          </ul>
-        </div>
-        <div className="rounded-3xl bg-background p-8 text-foreground shadow-2xl">
-          {status === "done" ? (
-            <div className="py-10 text-center animate-in zoom-in-95 fade-in">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground"><Check /></div>
-              <p className="mt-4 font-display text-2xl font-semibold">Você está na lista!</p>
-              <p className="mt-2 text-sm text-muted-foreground">Vamos te avisar assim que abrirmos para empresas.</p>
-            </div>
-          ) : (
-            <form onSubmit={onSubmit} className="space-y-4">
-              <p className="flex items-center gap-2 font-display text-2xl font-semibold"><Mail className="h-6 w-6 text-primary" />Entre na lista</p>
-              <input name="company" required maxLength={120} placeholder="Nome da empresa" className="w-full rounded-xl border border-input bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-ring" />
-              <input name="email" type="email" required maxLength={255} placeholder="E-mail" className="w-full rounded-xl border border-input bg-background px-4 py-3 outline-none focus:ring-2 focus:ring-ring" />
-              <select name="city" defaultValue="" className="w-full rounded-xl border border-input bg-background px-4 py-3 text-muted-foreground outline-none focus:ring-2 focus:ring-ring">
-                <option value="">Cidade (opcional)</option>
-                {cidades.map((c) => <option key={c}>{c}</option>)}
-              </select>
-              <button disabled={status === "loading"} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition hover:brightness-110 disabled:opacity-60">
-                {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}Quero ser avisado
-              </button>
-              {status === "error" && <p className="text-sm text-destructive">{msg}</p>}
-              <p className="text-center text-xs text-muted-foreground">Sem spam. Só novidades importantes.</p>
-            </form>
-          )}
-        </div>
-      </div>
-    </section>
-  );
+  return <section id="empresas" className="scroll-mt-6 bg-foreground text-background"><div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 sm:py-20 md:grid-cols-2 md:gap-16"><div><span className="inline-flex items-center gap-2 rounded-full border border-background/25 px-3 py-1.5 text-xs"><span className="size-1.5 rounded-full bg-primary" /> Para empresas · Em breve</span><h2 className="mt-6 font-display text-4xl font-medium leading-tight">O próximo talento da sua empresa pode ser seu vizinho.</h2><p className="mt-5 max-w-md text-sm leading-6 text-background/70">Em breve, sua empresa poderá publicar vagas no MeuBonjee. Entre na lista e receba as novidades do lançamento.</p><div className="mt-8 flex items-center gap-2 text-xs text-background/70"><MoveUpRight className="size-4 text-primary" /> Mais conexões. Mais oportunidades para o Vale.</div></div><div className="md:pt-4">{status === 'done' ? <div role="status" className="py-12"><Check className="size-10 text-primary" /><h3 className="mt-5 font-display text-3xl">Sua empresa está na lista!</h3><p className="mt-3 text-background/70">Vamos avisar quando a publicação de vagas estiver disponível.</p></div> : <form onSubmit={submit} className="space-y-4"><h3 className="mb-6 flex items-center gap-2 font-display text-2xl"><Bell className="size-5 text-primary" /> Fique por dentro</h3><div><label htmlFor="company" className="mb-2 block text-xs text-background/80">Nome da empresa</label><input id="company" name="company" required maxLength={120} placeholder="Como sua empresa se chama?" className="newsletter-input" /></div><div><label htmlFor="email" className="mb-2 block text-xs text-background/80">E-mail profissional</label><input id="email" name="email" type="email" required maxLength={255} placeholder="voce@empresa.com.br" className="newsletter-input" /></div><div><label htmlFor="company-city" className="mb-2 block text-xs text-background/80">Cidade <span className="text-background/50">(opcional)</span></label><select id="company-city" name="city" defaultValue="" className="newsletter-input"><option value="">Selecione sua cidade</option>{cidades.map(c => <option key={c}>{c}</option>)}</select></div><Button disabled={status === 'loading'} className="h-12 w-full rounded-full font-semibold">{status === 'loading' ? <Loader2 className="animate-spin" /> : <>Quero saber do lançamento <ArrowUpRight /></>}</Button>{status === 'error' && <p role="alert" className="text-sm text-primary">Não conseguimos salvar. Tente novamente.</p>}<p className="text-center text-xs text-background/50">Sem spam. Só novidades do MeuBonjee.</p></form>}</div></div></section>;
 }
