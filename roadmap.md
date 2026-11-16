@@ -1,4 +1,10 @@
 # Repaginação MeuBonjee
+## Mais vagas e tipos de candidatura
+- [ ] Buscar e conferir novos anúncios no Vale do Ribeira.
+- [ ] Adicionar vagas sem duplicar as existentes.
+- [ ] Explicar anúncios externos e futuras candidaturas simplificadas no MeuBonjee.
+- [ ] Conferir vagas, filtros e explicação na página.
+
 - [x] Repaginar a página com a logo original e identidade escolhida.
 - [x] Exibir vagas reais com links externos de candidatura.
 - [x] Manter a lista de interesse para empresas e o aviso de abertura em breve.
