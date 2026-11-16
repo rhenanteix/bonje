@@ -15,6 +15,13 @@
       "when": 1794784522161,
       "tag": "0001_add_job_application_link",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794787795779,
+      "tag": "0002_tighten_company_leads_insert",
+      "breakpoints": true
     }
   ]
 }
