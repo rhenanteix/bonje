@@ -9,3 +9,8 @@
 - [x] Ajustar configuração externa e isolar indisponibilidade das vagas.
 - [x] Validar página com cinco vagas reais e filtros; testar falhas de consulta e conexão.
 - [ ] Implantar e conferir na Vercel (depende de acesso à hospedagem).
+
+## Imagens na Vercel
+- [x] Confirmar que o endereço relativo da logo retorna 404 na Vercel.
+- [x] Usar o endereço completo disponível da logo e remover “Vale do Ribeira, SP”.
+- [x] Conferir o carregamento das imagens na página atualizada em computador, tablet e celular.

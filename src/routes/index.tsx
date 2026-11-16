@@ -9,6 +9,7 @@ import logo from '@/assets/meubonjee-logo.png.asset.json';
 import { listJobs } from '@/lib/jobs.functions';
 import { filterJobs, safeApplicationUrl } from '@/lib/jobs';
 
+const logoUrl = new URL(logo.url, 'https://vale-vagas-perto-de-voce.lovable.app').href;
 const jobsOptions = queryOptions({ queryKey: ['jobs'], queryFn: () => listJobs(), staleTime: 60_000 });
 const filtersSchema = z.object({ q: z.string().optional(), city: z.string().optional(), type: z.string().optional() });
 export const Route = createFileRoute('/')({
@@ -19,6 +20,7 @@ export const Route = createFileRoute('/')({
     { name: 'description', content: 'Encontre vagas no Vale do Ribeira e candidate-se diretamente no site do anúncio. Em breve, empresas poderão publicar no MeuBonjee.' },
     { property: 'og:title', content: 'MeuBonjee — Seu próximo trabalho pode estar aqui no Vale' },
     { property: 'og:description', content: 'Oportunidades da região em um só lugar. Um projeto aberto, feito por gente daqui.' },
+    { property: 'og:image', content: logoUrl }, { name: 'twitter:image', content: logoUrl },
     { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' },
   ] }),
   component: Index,
@@ -39,19 +41,19 @@ function Index() {
   return <div className="min-h-screen bg-background font-body text-foreground">
     <header className="border-b border-border">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
-        <a href="/" className="flex items-center gap-2" aria-label="MeuBonjee início"><img src={logo.url} alt="" className="size-12 object-contain" /><span className="font-display text-2xl font-bold">MeuBonjee<span className="text-brand-strong">.</span></span></a>
+        <a href="/" className="flex items-center gap-2" aria-label="MeuBonjee início"><img src={logoUrl} alt="" className="size-12 object-contain" /><span className="font-display text-2xl font-bold">MeuBonjee<span className="text-brand-strong">.</span></span></a>
         <nav className="flex items-center gap-6"><a href="#vagas" className="hidden text-sm font-semibold sm:block">Encontrar vagas</a><Button asChild variant="outline" className="h-10 rounded-full border-foreground px-4"><a href="#empresas">Sou empresa <ArrowUpRight /></a></Button></nav>
       </div>
     </header>
     <main>
       <section className="relative overflow-hidden">
-        <div className="hero-mascot pointer-events-none absolute bottom-0 right-0 hidden md:block"><img src={logo.url} alt="" className="h-full w-full object-contain" /></div>
+        <div className="hero-mascot pointer-events-none absolute bottom-0 right-0 hidden md:block"><img src={logoUrl} alt="" className="h-full w-full object-contain" /></div>
         <div className="relative mx-auto max-w-6xl px-5 pb-14 pt-12 sm:px-8 sm:pt-16">
           <p className="mb-6 inline-flex items-center gap-2 text-xs font-bold uppercase"><span className="size-2 rounded-full bg-brand-strong" /> De gente daqui. Para gente daqui.</p>
           <h1 className="max-w-2xl font-display text-4xl font-semibold leading-[1.08] sm:text-6xl">MeuBonjee.<br />Seu próximo trabalho<br className="hidden sm:block" /> pode estar <span className="hero-highlight">aqui no Vale.</span></h1>
           <p className="mt-6 max-w-md text-base leading-7 text-muted-foreground">Menos vagas perdidas em grupos. Mais oportunidades perto de você. O Vale do Ribeira, agora num lugar só.</p>
-          <div className="mt-8 flex flex-wrap gap-3"><Button asChild className="h-12 rounded-full bg-foreground px-6 text-background hover:bg-foreground/90"><a href="#vagas">Bora encontrar uma vaga <ArrowRight /></a></Button><span className="flex items-center gap-2 px-2 text-xs text-muted-foreground"><MapPin className="size-4" /> Vale do Ribeira, SP</span></div>
-          <img src={logo.url} alt="Logo MeuBonjee: personagem sorridente com chapéu de palha e sinal de paz" className="mx-auto mt-5 h-32 object-contain md:hidden" />
+          <div className="mt-8 flex flex-wrap gap-3"><Button asChild className="h-12 rounded-full bg-foreground px-6 text-background hover:bg-foreground/90"><a href="#vagas">Bora encontrar uma vaga <ArrowRight /></a></Button></div>
+          <img src={logoUrl} alt="Logo MeuBonjee: personagem sorridente com chapéu de palha e sinal de paz" className="mx-auto mt-5 h-32 object-contain md:hidden" />
         </div>
       </section>
       <div className="border-y border-border bg-primary"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-5 text-sm sm:px-8"><span className="flex items-center gap-2 font-semibold"><BriefcaseBusiness className="size-4" /> Oportunidades reais, perto de casa</span><span className="flex items-center gap-2"><ArrowUpRight className="size-4" /> Candidatura no site da vaga</span><span className="flex items-center gap-2"><Code2 className="size-4" /> Aberto e feito pela comunidade</span></div></div>

@@ -33,4 +33,4 @@ use the editor.
 - On Vercel, public job reads prefer externally reachable VITE configuration; return an explicit unavailable result on read failure so SSR still serves the page and users can retry without confusing outages with an empty list.
 - Store each vacancy's original application URL in the jobs table and validate HTTPS links before rendering external application controls, so candidates reach the real posting safely.
 - Keep job search, city, and contract filters in route search parameters, so filtered views survive refresh and sharing.
-- Preserve uploaded brand imagery through CDN asset pointers; only the small favicon is stored as a raster in public.
+- Preserve uploaded brand imagery through CDN asset pointers and resolve their relative URLs against the published Lovable origin so external hosts do not request missing local asset paths; only the small favicon is stored as a raster in public.
